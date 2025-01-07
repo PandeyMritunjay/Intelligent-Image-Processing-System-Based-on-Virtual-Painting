@@ -33,7 +33,6 @@ def index():
 
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
-    """Process the video frame for hand tracking and drawing."""
     global xp, yp, imgCanvas, drawColor, thickness
     data = request.json
     frame_data = data['frame']
@@ -43,6 +42,20 @@ def process_frame():
     nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     frame = cv2.flip(frame, 1)
+
+    # Ensure the frame is valid
+    if frame is None:
+        return jsonify({"error": "Invalid frame"}), 400
+
+    try:
+        # Process the frame for hand tracking
+        results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if not results.multi_hand_landmarks:
+            return jsonify({"processed_frame": frame_data})  # Return unprocessed frame
+    except ValueError as e:
+        # Handle timestamp mismatch
+        print(f"Frame skipped due to timestamp mismatch: {e}")
+        return jsonify({"processed_frame": frame_data})  # Return unprocessed frame
 
     # Process the frame for hand tracking
     results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -117,10 +130,8 @@ def process_frame():
     frame = cv2.bitwise_and(frame, inv)
     frame = cv2.bitwise_or(frame, imgCanvas)
 
-    # Encode the processed frame back to base64
     _, buffer = cv2.imencode('.jpg', frame)
     processed_frame = base64.b64encode(buffer).decode('utf-8')
-
     return jsonify({"processed_frame": processed_frame})
 
 if __name__ == '__main__':
