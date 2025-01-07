@@ -5,75 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtual Painter</title>
     <style>
-        /* General reset */
         body, html {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            height: 100%;
-        }
-
-        /* Center everything on the page */
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, sans-serif;
             text-align: center;
-            height: 100vh;
-            padding: 20px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
         }
-
         h1 {
-            font-size: 3rem;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-bottom: 40px;
-        }
-
-        img {
-            width: 80%;
-            height: auto;
-            max-width: 720px;
-            border: 8px solid #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        footer {
             margin-top: 20px;
-            font-size: 1rem;
-            color: #fff;
-            opacity: 0.8;
+            font-size: 2.5rem;
+            color: white;
         }
-
-        footer a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
+        p {
+            color: white;
+            font-size: 1.2rem;
         }
-
-        footer a:hover {
-            text-decoration: underline;
+        video, canvas {
+            margin-top: 20px;
+            border: 4px solid white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Virtual Painter</h1>
-        <p>Use your hand gestures to draw on the screen!</p>
-        <img src="/video_feed" alt="Live Video Feed">
-        <footer>
-            Made with ❤️ by <a href="#">Mritunjay Pandey</a>
-        </footer>
-    </div>
+    <h1>Virtual Painter</h1>
+    <p>Use your webcam to draw with hand gestures!</p>
+    <video id="webcam" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        // Access the user's webcam
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+
+                    // Send video frames to the server
+                    setInterval(() => {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const frameData = canvas.toDataURL('image/jpeg');
+                        fetch('/process_frame', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ frame: frameData })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Server Response:", data);
+                        })
+                        .catch(error => console.error("Error:", error));
+                    }, 100);
+                })
+                .catch((error) => {
+                    console.error("Error accessing webcam:", error);
+                });
+        } else {
+            alert("Webcam access is not supported in your browser!");
+        }
+    </script>
 </body>
 </html>
