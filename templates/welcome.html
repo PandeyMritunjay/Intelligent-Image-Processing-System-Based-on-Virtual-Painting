@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        }
+        .welcome-container {
+            text-align: center;
+            animation: fadeOut 3s ease-in-out forwards;
+        }
+        h1 {
+            font-size: 3rem;
+            color: white;
+            margin: 0;
+        }
+        p {
+            font-size: 1.2rem;
+            color: white;
+        }
+        @keyframes fadeOut {
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <h1>Welcome to Virtual Painter</h1>
+        <p>Get ready to explore the world of creative gestures!</p>
+    </div>
+      <script>
+      setTimeout(() => {
+            window.location.href = "/main"; // Redirect to the Flask route for the main page
+      }, 3000); // 3 seconds delay
+      </script>
+
+</body>
+</html>
