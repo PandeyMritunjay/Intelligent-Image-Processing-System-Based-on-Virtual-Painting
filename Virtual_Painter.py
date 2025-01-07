@@ -18,11 +18,10 @@ cap.set(4, height)
 imgCanvas = np.zeros((height, width, 3), np.uint8)
 
 # Getting all header images in a list
-folderPath = 'Project\AI Virtual Painter\Header'
-myList = os.listdir(folderPath)
+myList = [file for file in os.listdir('./') if file.endswith('.png')]
 overlayList = []
 for imPath in myList:
-    image = cv2.imread(f'{folderPath}/{imPath}')
+    image = cv2.imread(f'./{imPath}')
     overlayList.append(image)
 
 # Presettings:
@@ -160,7 +159,7 @@ with mp_hands.Hands(min_detection_confidence=0.85, min_tracking_confidence=0.5, 
         # Setting the header in the video
         image[0:125, 0:width] = header
 
-        # The image processing to produce the image of the camera with the draw made in imgCanvas
+        # The image processing to produce the image of Qthe camera with the draw made in imgCanvas
         imgGray = cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY)
         _, imgInv = cv2.threshold(imgGray, 5, 255, cv2.THRESH_BINARY_INV)
         imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
